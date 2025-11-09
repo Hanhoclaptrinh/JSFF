@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <script src="https://cdn.jsdelivr.net/npm/p5@1.9.0/lib/p5.min.js"></script>
+  </head>
+  <body>
+    <script>
+      function setup() {
+        createCanvas(windowWidth, windowHeight);
+        background(0);
+        noStroke();
+      }
+
+      function draw() {
+        // sinh màu ngẫu nhiên
+        fill(random(255), random(255), random(255), 50);
+
+        // tạo vị trí ngẫu nhiên
+        const x = random(width);
+        const y = random(height);
+
+        // vẽ hình tròn
+        ellipse(x, y, random(10, 100));
+
+        // tạo hiệu ứng tan biến dần
+        fill(0, 10);
+        rect(0, 0, width, height);
+      }
+    </script>
+  </body>
+</html>

@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Generative Art Canvas</title>
+    <style>
+      body,
+      html {
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+        background: #111;
+      }
+      canvas {
+        display: block;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="artCanvas"></canvas>
+    <script>
+      const canvas = document.getElementById("artCanvas");
+      const ctx = canvas.getContext("2d");
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+
+      const particles = [];
+      const colors = ["#ff3c38", "#ffb22b", "#28ffc1", "#7b5fff", "#ff5aeb"];
+
+      function random(min, max) {
+        return Math.random() * (max - min) + min;
+      }
+
+      // tạo hạt ban đầu
+      for (let i = 0; i < 150; i++) {
+        particles.push({
+          x: random(0, canvas.width),
+          y: random(0, canvas.height),
+          radius: random(2, 6),
+          color: colors[Math.floor(random(0, colors.length))],
+          vx: random(-1, 1),
+          vy: random(-1, 1),
+        });
+      }
+
+      function animate() {
+        ctx.fillStyle = "rgba(0,0,0,0.15)"; // tạo trail mờ
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        for (let p of particles) {
+          // di chuyển hạt
+          p.x += p.vx;
+          p.y += p.vy;
+
+          // nảy khi chạm mép
+          if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
+          if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
+
+          // vẽ hạt
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+          ctx.fillStyle = p.color;
+          ctx.fill();
+        }
+
+        // nối các hạt gần nhau
+        for (let i = 0; i < particles.length; i++) {
+          for (let j = i + 1; j < particles.length; j++) {
+            const dx = particles[i].x - particles[j].x;
+            const dy = particles[i].y - particles[j].y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            if (dist < 100) {
+              ctx.strokeStyle = `rgba(255,255,255,${1 - dist / 100})`;
+              ctx.beginPath();
+              ctx.moveTo(particles[i].x, particles[i].y);
+              ctx.lineTo(particles[j].x, particles[j].y);
+              ctx.stroke();
+            }
+          }
+        }
+
+        requestAnimationFrame(animate);
+      }
+
+      animate();
+
+      // resize canvas khi thay đổi kích thước
+      window.addEventListener("resize", () => {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+      });
+    </script>
+  </body>
+</html>

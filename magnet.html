@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Generative Particle Art</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body,
+      html {
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        background: radial-gradient(
+          circle at center,
+          #0f0c29,
+          #302b63,
+          #24243e
+        );
+      }
+      canvas {
+        display: block;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="canvas"></canvas>
+
+    <script>
+      const canvas = document.getElementById("canvas");
+      const ctx = canvas.getContext("2d");
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+
+      const particles = [];
+      const numParticles = 120; // số lượng hạt
+      const mouse = { x: canvas.width / 2, y: canvas.height / 2 };
+
+      const items = [
+        "●",
+        "○",
+        "★",
+        "✦",
+        "✪",
+        "✧",
+        "😀",
+        "😎",
+        "🥰",
+        "🌸",
+        "🌈",
+        "🔥",
+        "💧",
+      ];
+
+      // tạo hạt
+      for (let i = 0; i < numParticles; i++) {
+        particles.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height,
+          vx: (Math.random() - 0.5) * 1,
+          vy: (Math.random() - 0.5) * 1,
+          size: 2 + Math.random() * 3,
+          item: items[Math.floor(Math.random() * items.length)],
+        });
+      }
+
+      // cập nhật vị trí chuột
+      canvas.addEventListener("mousemove", (e) => {
+        mouse.x = e.clientX;
+        mouse.y = e.clientY;
+      });
+
+      // click bung ra
+      canvas.addEventListener("click", () => {
+        particles.forEach((p) => {
+          p.vx += (Math.random() - 0.5) * 10;
+          p.vy += (Math.random() - 0.5) * 10;
+        });
+      });
+
+      // tính khoảng cách
+      function distance(p1, p2) {
+        return Math.hypot(p1.x - p2.x, p1.y - p2.y);
+      }
+
+      // animation
+      function animate() {
+        // nền mờ để tạo vệt chuyển động
+        ctx.fillStyle = "rgba(15,12,41,0.2)";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // cập nhật hạt
+        particles.forEach((p) => {
+          // hút về chuột
+          const dx = mouse.x - p.x;
+          const dy = mouse.y - p.y;
+          const dist = Math.hypot(dx, dy);
+          if (dist < 150) {
+            p.vx += dx * 0.002;
+            p.vy += dy * 0.002;
+          }
+
+          // di chuyển
+          p.x += p.vx;
+          p.y += p.vy;
+
+          // ma sát
+          p.vx *= 0.95;
+          p.vy *= 0.95;
+
+          // ggiới hạn trong canvas
+          if (p.x < 0) p.x = canvas.width;
+          if (p.x > canvas.width) p.x = 0;
+          if (p.y < 0) p.y = canvas.height;
+          if (p.y > canvas.height) p.y = 0;
+
+          // vvẽ hạt
+          ctx.fillStyle = "white";
+          ctx.font = `${p.size * 2}px Arial`;
+          ctx.fillText(p.item, p.x, p.y);
+        });
+
+        // vẽ line nối gần nhau
+        for (let i = 0; i < particles.length; i++) {
+          for (let j = i + 1; j < particles.length; j++) {
+            const d = distance(particles[i], particles[j]);
+            if (d < 120) {
+              const alpha = 1 - d / 120;
+              ctx.strokeStyle = `rgba(255,255,255,${alpha})`;
+              ctx.lineWidth = 1;
+              ctx.beginPath();
+              ctx.moveTo(particles[i].x, particles[i].y);
+              ctx.lineTo(particles[j].x, particles[j].y);
+              ctx.stroke();
+            }
+          }
+        }
+
+        requestAnimationFrame(animate);
+      }
+
+      animate();
+
+      // resize canvas khi thay đổi kích thước
+      window.addEventListener("resize", () => {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+      });
+    </script>
+  </body>
+</html>
