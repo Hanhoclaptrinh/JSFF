@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Click Ripple</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      background: #0b0b0b;
+    }
+    canvas {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="canvas"></canvas>
+  <script>
+    const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+let ripples = [];
+
+window.addEventListener("click", e => {
+  ripples.push({
+    x: e.clientX,
+    y: e.clientY,
+    radius: 0,
+    alpha: 1
+  });
+});
+
+function animate() {
+  ctx.fillStyle = "rgba(0, 0, 0, 0.25)";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  ripples.forEach((r, i) => {
+    r.radius += 10;
+    r.alpha -= 0.015;
+
+    ctx.beginPath();
+    ctx.arc(r.x, r.y, r.radius, 0, Math.PI * 2);
+    // ctx.strokeStyle = `rgba(0, 200, 255, ${r.alpha})`;
+    ctx.strokeStyle = `hsla(${Date.now() * 0.1 % 360}, 100%, 60%, ${r.alpha})`;
+
+    ctx.lineWidth = 3;
+    ctx.stroke();
+
+    if (r.alpha <= 0) ripples.splice(i, 1);
+  });
+
+  requestAnimationFrame(animate);
+}
+
+animate();
+
+window.addEventListener("resize", () => {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+});
+
+  </script>
+</body>
+</html>
