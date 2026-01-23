@@ -23,11 +23,11 @@ const ctx = canvas.getContext("2d");
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
-const centerX = () => canvas.width / 2;
-const centerY = () => canvas.height / 2;
+const cx = () => canvas.width / 2;
+const cy = () => canvas.height / 2;
 
+const STAR_COUNT = 900;
 let stars = [];
-const STAR_COUNT = 800;
 
 class Star {
   constructor() {
@@ -35,32 +35,36 @@ class Star {
   }
 
   reset() {
-    this.x = Math.random() * canvas.width - centerX();
-    this.y = Math.random() * canvas.height - centerY();
+    this.x = Math.random() * canvas.width - cx();
+    this.y = Math.random() * canvas.height - cy();
     this.z = Math.random() * canvas.width;
-    this.size = Math.random() * 2 + 0.5;
+    this.pz = this.z; // previous z (để vẽ trail)
   }
 
   update() {
-    this.z -= 10;
-    if (this.z <= 0) this.reset();
+    this.pz = this.z;
+    this.z -= 18;
+
+    if (this.z < 1) {
+      this.reset();
+      this.z = canvas.width;
+      this.pz = this.z;
+    }
   }
 
   draw() {
-    const sx = (this.x / this.z) * canvas.width + centerX();
-    const sy = (this.y / this.z) * canvas.width + centerY();
+    const sx = (this.x / this.z) * canvas.width + cx();
+    const sy = (this.y / this.z) * canvas.width + cy();
 
-    if (sx < 0 || sx > canvas.width || sy < 0 || sy > canvas.height) {
-      this.reset();
-      return;
-    }
+    const px = (this.x / this.pz) * canvas.width + cx();
+    const py = (this.y / this.pz) * canvas.width + cy();
 
-    const radius = (1 - this.z / canvas.width) * this.size * 3;
-
+    ctx.strokeStyle = "white";
+    ctx.lineWidth = 1;
     ctx.beginPath();
-    ctx.arc(sx, sy, radius, 0, Math.PI * 2);
-    ctx.fillStyle = "white";
-    ctx.fill();
+    ctx.moveTo(px, py);
+    ctx.lineTo(sx, sy);
+    ctx.stroke();
   }
 }
 
@@ -72,7 +76,7 @@ function init() {
 }
 
 function animate() {
-  ctx.fillStyle = "rgba(0,0,0,0.4)";
+  ctx.fillStyle = "rgba(0, 0, 0, 0.35)";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
   stars.forEach(star => {
@@ -86,6 +90,7 @@ function animate() {
 window.addEventListener("resize", () => {
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
+  init();
 });
 
 init();
